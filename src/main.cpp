@@ -20,10 +20,11 @@
 // lift                 motor         6               
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
-
 #include "vex.h"
 using namespace vex;
 
+// A global instance of competition
+competition Competition;
 
 ///
 // Globals
@@ -32,18 +33,15 @@ using namespace vex;
 //  - you can, so you can change things when you eventually need to
 ///
 const int  RESET_TIMEOUT     = 3000; // Time for resetting sensors to give up
-bool       WAS_RESET_SUCCESS = true; // Flag for if resetting worked
+bool       WAS_RESET_SUCCESS = false; // Flag for if resetting worked
 
-const float SCALE      =  12000/100; // Makes input out of 127 instead of 12000
-
+const float SCALE      =  12000/127; // Makes input out of 127 instead of 12000
 const int   THRESH     =  5;         // When joystick is within this, the motors will set to 0.  This is the deadzone
 const int   DELAY_TIME =  10;        // Delay time for loops (ms)
-
 const int   MOGO_OUT   =  490;       // Out position for the mogo lift
-
-const int   TILTER_OUT  = -600;      // Out position for the tilter
-const int   TILTER_IN   = -220;      // In position for tilter
-const int   TILTER_DOWN = -940;      // Down position for tilter
+const int   MOGO_IN    =  0;       // In position for mogo lift
+const int   TILTER_OUT = -600;       // Out position for the tilter
+const int   TILTER_IN  =  -220;         // In position for tilter
 
 // Lift constants
 /*
@@ -72,16 +70,6 @@ void set_tank(int l, int r) {
   rb.spin(fwd, r*SCALE, voltageUnits::mV);
   rf.spin(fwd, r*SCALE, voltageUnits::mV);
 }
-void set_mogo  (int input) { mogo.  spin(fwd, input*SCALE, voltageUnits::mV); }
-void set_tilter(int input) { tilter.spin(fwd, input*SCALE, voltageUnits::mV); }
-void set_lift  (int input) { lift.  spin(fwd, input*SCALE, voltageUnits::mV); }
-
-// Set position
-void set_mogo_position  (int pos, int speed) { mogo.  startRotateTo(pos, rotationUnits::deg, speed, velocityUnits::pct); }
-void set_tilter_position(int pos, int speed) { tilter.startRotateTo(pos, rotationUnits::deg, speed, velocityUnits::pct); }
-void set_lift_position  (int pos, int speed) { lift.  startRotateTo(pos, rotationUnits::deg, speed, velocityUnits::pct); }
-
-// Brake modes
 void brake_drive() {
   lf.setStopping(hold);
   lb.setStopping(hold);
@@ -93,6 +81,17 @@ void coast_drive() {
   lb.setStopping(coast);
   rf.setStopping(coast);
   rb.setStopping(coast);
+}
+void set_mogo  (int input) { mogo.  spin(fwd, input*SCALE, voltageUnits::mV); }
+void set_tilter(int input) { tilter.spin(fwd, input*SCALE, voltageUnits::mV); }
+void set_lift  (int input) { lift.  spin(fwd, input*SCALE, voltageUnits::mV); }
+
+// Set position
+void set_mogo_position  (int pos, int speed) { mogo.  startRotateTo(pos, rotationUnits::deg, speed, velocityUnits::pct); }
+void set_tilter_position(int pos, int speed) { tilter.startRotateTo(pos, rotationUnits::deg, speed, velocityUnits::pct); }
+void set_lift_position  (int pos, int speed) { lift.  startRotateTo(pos, rotationUnits::deg, speed, velocityUnits::pct); 
+
+lift.rotateFor(fwd, 2, deg, speed, velocityUnits::pct, false);
 }
 
 
@@ -158,7 +157,6 @@ void zero_sensors() {
       // Once timeout_timer is greater then RESET_TIMER, exit this loop
       timeout_timer+=DELAY_TIME;
       if (timeout_timer>RESET_TIMEOUT) {
-        WAS_RESET_SUCCESS = false;
         run = false;
       }
     }
@@ -174,40 +172,80 @@ void zero_sensors() {
   if (!tilter_zero) tilter.resetPosition();
   if (!mogo_zero)   mogo.  resetPosition();
   if (!lift_zero)   lift.  resetPosition();
+
+  //tell the rest of the code that pre_auton finished
+  WAS_RESET_SUCCESS = true;
 }
 
-
-
 ///
-// Main
+//
 ///
-int main() {
+void
+auton() {
+  set_tilter_position(TILTER_OUT, 100);
+  set_tank(127, 127);
+  wait(800, msec);
+  set_tank(0, 0);
+}
+
+/*---------------------------------------------------------------------------*/
+/*                          Pre-Autonomous Functions                         */
+/*                                                                           */
+/*  You may want to perform some actions before the competition starts.      */
+/*  Do them in the following function.  You must return from this function   */
+/*  or the autonomous and usercontrol tasks will not be started.  This       */
+/*  function is only called once after the V5 has been powered on and        */
+/*  not every time that the robot is disabled.                               */
+/*---------------------------------------------------------------------------*/
+
+void pre_auton(void) {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
 
+  // All activities that occur before the competition starts
+  // Example: clearing encoders, setting servo positions, ...
   zero_sensors();
+}
 
-  // If zeroing was not successful, print to screen
-  if (!WAS_RESET_SUCCESS) {
-    Controller1.rumble("-"); // Vibrate the controller so the user knows something is wrong
+/*---------------------------------------------------------------------------*/
+/*                                                                           */
+/*                              Autonomous Task                              */
+/*                                                                           */
+/*  This task is used to control your robot during the autonomous phase of   */
+/*  a VEX Competition.                                                       */
+/*                                                                           */
+/*  You must modify the code to add your own robot specific commands here.   */
+/*---------------------------------------------------------------------------*/
 
-    Brain.Screen.setPenColor(red);
-    Brain.Screen.setFillColor(red);
-    Brain.Screen.drawRectangle(0, 0, 480, 272);
-
-    for (int i=0;i<15;i++) {
-      Brain.Screen.setPenColor(white);
-      Brain.Screen.printAt(100, 16*(i+1), "!SUB-SYSTEMS DID NOT ZERO!");
-      wait(DELAY_TIME, msec);
-    }
-  } 
-  // If zeroing was successful, make the brain green
-  else {
-    Brain.Screen.setPenColor(green);
-    Brain.Screen.setFillColor(green);
-    Brain.Screen.drawRectangle(0, 0, 480, 272);
+void autonomous(void) {
+  // ..........................................................................
+  // Insert autonomous user code here.
+  // ..........................................................................
+   //checks if pre_auton ran and if did not run pre_auto
+  if(WAS_RESET_SUCCESS == false){
+    zero_sensors();
   }
+  else{ 
+    //nothing needed but makes code look cleaner 
+  }
+  brake_drive();
+  auton();
+  wait(500, msec);
+  coast_drive();
+}
 
+/*---------------------------------------------------------------------------*/
+/*                                                                           */
+/*                              User Control Task                            */
+/*                                                                           */
+/*  This task is used to control your robot during the user control phase of */
+/*  a VEX Competition.                                                       */
+/*                                                                           */
+/*  You must modify the code to add your own robot specific commands here.   */
+/*---------------------------------------------------------------------------*/
+
+void usercontrol(void) {
+  // User control code here, inside the loop
   // Parameters for user control
   bool tilter_up;
   int tilter_lock = 0;
@@ -225,7 +263,20 @@ int main() {
 
   tilter_up = true;
 
-  while (true) {
+  //checks if pre_auton ran and if did not run pre_auto
+  if(WAS_RESET_SUCCESS == false){
+    zero_sensors();
+  }
+  else{ 
+    //nothing needed but makes code look cleaner 
+  }
+  
+
+  mogo.resetPosition();
+  while (1) {
+    // This is the main execution loop for the user control program.
+    // Each time through the loop your program should update motor + servo
+    // values based on feedback from the joysticks.
 
     ///
     // Joysticks
@@ -242,10 +293,8 @@ int main() {
     ///
     // Tilter
     //  - tilter has two positions, pressing L2 toggles it between them
-    //  - when L2 is held, bring the tilter all the way down
     ///
-
-    // Flip boolean when button is pressed
+  // Flip boolean when button is pressed
     if (Controller1.ButtonL2.pressing() && tilter_lock==0) {
       if (down)
         tilter_up = false;
@@ -271,7 +320,7 @@ int main() {
 
     // Have the motor go to a position depending on boolean state
     if (down)
-      set_tilter_position(TILTER_OUT, 100);
+      set_tilter_position(-940, 100);
     else if (tilter_up) 
       set_tilter_position(TILTER_IN, 100);
     else  //tilter_up == false
@@ -326,6 +375,39 @@ int main() {
       }
     }
 
+    /*
+    // Have the motor go to a position depending on boolean state.
+    // This runs the motor at full power until the velocity of the motor is 0.
+    // when the velocity is 0, we know the subsystem has reached a hardstop.
+    // then it sets the motor to a low amount of power to stop it from overheating
+    if (mogo_up) {
+      if (mogo.rotation(deg)<150) {
+        if (mogo.velocity(pct)==0) {
+          is_up = true;
+          set_mogo(0);
+        }
+        else {
+          set_mogo(is_up?0:-50);
+        }
+      }
+      else {
+        is_up = false;
+        set_mogo(-127);
+      }
+    }
+    else {
+      if (mogo.rotation(deg)>MOGO_OUT-100) {
+        if (mogo.velocity(pct)==0) 
+          set_mogo(0);
+        else 
+          set_mogo(30);
+      }
+      else {
+        set_mogo(127);
+      }
+    }
+    */
+
 
 
     ///
@@ -373,7 +455,23 @@ int main() {
     set_lift_position(LIFT_HEIGHTS[lift_state], lift_speed);
     
 
-
     wait(DELAY_TIME, msec); // Don't hog the CPU!
+  }
+}
+
+//
+// Main will set up the competition functions and callbacks.
+//
+int main() {
+  // Set up callbacks for autonomous and driver control periods.
+  Competition.autonomous(autonomous);
+  Competition.drivercontrol(usercontrol);
+
+  // Run the pre-autonomous function.
+  pre_auton();
+
+  // Prevent main from exiting with an infinite loop.
+  while (true) {
+    wait(100, msec);
   }
 }
