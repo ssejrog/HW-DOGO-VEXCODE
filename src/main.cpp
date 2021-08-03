@@ -1,3 +1,11 @@
+/*----------------------------------------------------------------------------*/
+/*                                                                            */
+/*    Module:       main.cpp                                                  */
+/*    Author:       C:\Users\Jess                                             */
+/*    Created:      Mon Jul 12 2021                                           */
+/*    Description:  V5 project                                                */
+/*                                                                            */
+/*----------------------------------------------------------------------------*/
 // ---- START VEXCODE CONFIGURED DEVICES ----
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
@@ -10,27 +18,8 @@
 // mogo                 motor         15              
 // lift                 motor         6               
 // ---- END VEXCODE CONFIGURED DEVICES ----
-/*----------------------------------------------------------------------------*/
-/*                                                                            */
-/*    Module:       main.cpp                                                  */
-/*    Author:       C:\Users\Jess                                             */
-/*    Created:      Mon Jul 12 2021                                           */
-/*    Description:  V5 project                                                */
-/*                                                                            */
-/*----------------------------------------------------------------------------*/
 
-// ---- START VEXCODE CONFIGURED DEVICES ----
-// Robot Configuration:
-// [Name]               [Type]        [Port(s)]
-// rf                   motor         16              
-// rb                   motor         17              
-// lf                   motor         18              
-// lb                   motor         19              
-// Controller1          controller                    
-// tilter               motor         11              
-// mogo                 motor         15              
-// lift                 motor         6               
-// ---- END VEXCODE CONFIGURED DEVICES ----
+
 
 #include "vex.h"
 using namespace vex;
@@ -38,39 +27,37 @@ using namespace vex;
 // A global instance of competition
 competition Competition;
 
+
+
 ///
 // Globals
 //  - it's good practice to name globals in all caps
 //  - we also try to avoid "hard coding" number.  use variables wherever
 //  - you can, so you can change things when you eventually need to
 ///
-const int  RESET_TIMEOUT     = 3000; // Time for resetting sensors to give up
-bool       WAS_RESET_SUCCESS = false; // Flag for if resetting worked
+const int RESET_TIMEOUT     = 3000;  // Time for resetting sensors to give up
+bool      WAS_RESET_SUCCESS = false; // Flag for if resetting worked
 
-const int   THRESH     =  5;         // When joystick is within this, the motors will set to 0.  This is the deadzone
-const int   DELAY_TIME =  10;        // Delay time for loops (ms)
-const int   MOGO_OUT   =  490;       // Out position for the mogo lift
-const int   MOGO_IN    =  0;       // In position for mogo lift
-const int   TILTER_OUT = -600;       // Out position for the tilter
-const int   TILTER_IN  =  -220;         // In position for tilter
+const int THRESH     =  5;  // When joystick is within this, the motors will set to 0.  This is the deadzone
+const int DELAY_TIME =  10; // Delay time for loops (ms)
+
+const int MOGO_OUT   =  490; // Out position for the mogo lift
+
+const int TILTER_OUT = -600;  // Out position for the tilter
+const int TILTER_IN  =  -220; // In position for tilter
 
 // Lift constants
-/*
-const int NUM_OF_POS = 4; // Amount of heights
-const int LIFT_HEIGHTS[NUM_OF_POS] = {0, 620, 1000, 1800}; // Lift positions, from lowest to highest
-const int UP_SPEED   = 100;
-const int DOWN_SPEED = 100;
-*/
 const int NUM_OF_POS = 3; // Amount of heights
 const int LIFT_HEIGHTS[NUM_OF_POS] = {0, 620, 1000}; // Lift positions, from lowest to highest
 const int UP_SPEED   = 100;
-const int DOWN_SPEED = 100;
+const int DOWN_SPEED = 80;
+
 
 
 ///
 // Set Motor Functions
 //  - this sets motors between -12000 and 12000.  i'm used to
-//  - -127 to 127, so the "scale" variable lets me use that as
+//  - -100 to 100, so the "scale" variable lets me use that as
 //  - inputs and scales it to -12000 to 12000
 ///
 
@@ -82,6 +69,7 @@ void set_tank(int l, int r) {
   rb.spin(fwd, r*SCALE, voltageUnits::mV);
   rf.spin(fwd, r*SCALE, voltageUnits::mV);
 }
+// Drive Brake Types
 void brake_drive() {
   lf.setStopping(hold);
   lb.setStopping(hold);
@@ -94,6 +82,7 @@ void coast_drive() {
   rf.setStopping(coast);
   rb.setStopping(coast);
 }
+
 void set_mogo  (int input) { mogo.  spin(fwd, input*SCALE, voltageUnits::mV); }
 void set_tilter(int input) { tilter.spin(fwd, input*SCALE, voltageUnits::mV); }
 void set_lift  (int input) { lift.  spin(fwd, input*SCALE, voltageUnits::mV); }
@@ -186,16 +175,7 @@ void zero_sensors() {
   WAS_RESET_SUCCESS = true;
 }
 
-///
-//
-///
-void
-auton() {
-  set_tilter_position(TILTER_OUT, 100);
-  set_tank(127, 127);
-  wait(800, msec);
-  set_tank(0, 0);
-}
+
 
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
@@ -216,6 +196,8 @@ void pre_auton(void) {
   zero_sensors();
 }
 
+
+
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
 /*                              Autonomous Task                              */
@@ -226,16 +208,23 @@ void pre_auton(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
+bool did_auto_finish = false;
 void autonomous(void) {
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
 
   brake_drive();
-  auton();
-  wait(500, msec);
-  coast_drive();
+
+  set_tilter_position(TILTER_OUT, 100);
+  set_tank(127, 127);
+  wait(800, msec);
+  set_tank(0, 0);  
+
+  did_auto_finish = true;
 }
+
+
 
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
@@ -264,17 +253,22 @@ void usercontrol(void) {
   int lift_state = 0;
   int lift_speed = UP_SPEED;
 
-  tilter_up = true;
+  if (did_auto_finish)
+    tilter_up = false;
 
   //checks if pre_auton ran and if did not run pre_auto
   while(WAS_RESET_SUCCESS == false){
     wait(10, msec);
   }
+
+  coast_drive();
   
   while (1) {
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
     // values based on feedback from the joysticks.
+
+
 
     ///
     // Joysticks
@@ -292,7 +286,7 @@ void usercontrol(void) {
     // Tilter
     //  - tilter has two positions, pressing L2 toggles it between them
     ///
-  // Flip boolean when button is pressed
+    // Flip boolean when button is pressed
     if (Controller1.ButtonL2.pressing() && tilter_lock==0) {
       if (down)
         tilter_up = false;
@@ -324,6 +318,7 @@ void usercontrol(void) {
     else  //tilter_up == false
       set_tilter_position(TILTER_OUT, 100);
     
+
 
     ///
     // Mogo
@@ -373,39 +368,6 @@ void usercontrol(void) {
       }
     }
 
-    /*
-    // Have the motor go to a position depending on boolean state.
-    // This runs the motor at full power until the velocity of the motor is 0.
-    // when the velocity is 0, we know the subsystem has reached a hardstop.
-    // then it sets the motor to a low amount of power to stop it from overheating
-    if (mogo_up) {
-      if (mogo.rotation(deg)<150) {
-        if (mogo.velocity(pct)==0) {
-          is_up = true;
-          set_mogo(0);
-        }
-        else {
-          set_mogo(is_up?0:-50);
-        }
-      }
-      else {
-        is_up = false;
-        set_mogo(-127);
-      }
-    }
-    else {
-      if (mogo.rotation(deg)>MOGO_OUT-100) {
-        if (mogo.velocity(pct)==0) 
-          set_mogo(0);
-        else 
-          set_mogo(30);
-      }
-      else {
-        set_mogo(127);
-      }
-    }
-    */
-
 
 
     ///
@@ -453,9 +415,12 @@ void usercontrol(void) {
     set_lift_position(LIFT_HEIGHTS[lift_state], lift_speed);
     
 
+
     wait(DELAY_TIME, msec); // Don't hog the CPU!
   }
 }
+
+
 
 //
 // Main will set up the competition functions and callbacks.
