@@ -13,7 +13,7 @@ motor rb = motor(PORT17, ratio6_1, true);
 motor lf = motor(PORT18, ratio6_1, false);
 motor lb = motor(PORT19, ratio6_1, true);
 controller Controller1 = controller(primary);
-motor tilter = motor(PORT11, ratio18_1, false);
+motor tilter = motor(PORT12, ratio18_1, false);
 motor mogo = motor(PORT15, ratio36_1, false);
 motor lift = motor(PORT6, ratio18_1, false);
 

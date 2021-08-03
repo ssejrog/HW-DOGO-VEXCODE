@@ -1,3 +1,15 @@
+// ---- START VEXCODE CONFIGURED DEVICES ----
+// Robot Configuration:
+// [Name]               [Type]        [Port(s)]
+// rf                   motor         16              
+// rb                   motor         17              
+// lf                   motor         18              
+// lb                   motor         19              
+// Controller1          controller                    
+// tilter               motor         12              
+// mogo                 motor         15              
+// lift                 motor         6               
+// ---- END VEXCODE CONFIGURED DEVICES ----
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /*    Module:       main.cpp                                                  */
@@ -35,7 +47,6 @@ competition Competition;
 const int  RESET_TIMEOUT     = 3000; // Time for resetting sensors to give up
 bool       WAS_RESET_SUCCESS = false; // Flag for if resetting worked
 
-const float SCALE      =  12000/127; // Makes input out of 127 instead of 12000
 const int   THRESH     =  5;         // When joystick is within this, the motors will set to 0.  This is the deadzone
 const int   DELAY_TIME =  10;        // Delay time for loops (ms)
 const int   MOGO_OUT   =  490;       // Out position for the mogo lift
@@ -64,6 +75,7 @@ const int DOWN_SPEED = 100;
 ///
 
 // Set voltage
+const int SCALE = 120;
 void set_tank(int l, int r) {
   lf.spin(fwd, l*SCALE, voltageUnits::mV);
   lb.spin(fwd, l*SCALE, voltageUnits::mV);
@@ -89,10 +101,7 @@ void set_lift  (int input) { lift.  spin(fwd, input*SCALE, voltageUnits::mV); }
 // Set position
 void set_mogo_position  (int pos, int speed) { mogo.  startRotateTo(pos, rotationUnits::deg, speed, velocityUnits::pct); }
 void set_tilter_position(int pos, int speed) { tilter.startRotateTo(pos, rotationUnits::deg, speed, velocityUnits::pct); }
-void set_lift_position  (int pos, int speed) { lift.  startRotateTo(pos, rotationUnits::deg, speed, velocityUnits::pct); 
-
-lift.rotateFor(fwd, 2, deg, speed, velocityUnits::pct, false);
-}
+void set_lift_position  (int pos, int speed) { lift.  startRotateTo(pos, rotationUnits::deg, speed, velocityUnits::pct); }
 
 
 
@@ -221,13 +230,7 @@ void autonomous(void) {
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
-   //checks if pre_auton ran and if did not run pre_auto
-  if(WAS_RESET_SUCCESS == false){
-    zero_sensors();
-  }
-  else{ 
-    //nothing needed but makes code look cleaner 
-  }
+
   brake_drive();
   auton();
   wait(500, msec);
@@ -264,15 +267,10 @@ void usercontrol(void) {
   tilter_up = true;
 
   //checks if pre_auton ran and if did not run pre_auto
-  if(WAS_RESET_SUCCESS == false){
-    zero_sensors();
-  }
-  else{ 
-    //nothing needed but makes code look cleaner 
+  while(WAS_RESET_SUCCESS == false){
+    wait(10, msec);
   }
   
-
-  mogo.resetPosition();
   while (1) {
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
