@@ -19,11 +19,13 @@ DOGO (double mobile goal) is a mobile goal focused robot that can place goals on
 Reveal  
 VEX Forum  
 
+Basic Code  
+[DOGO VEXcode](https://github.com/Unionjackjz1/HW-DOGO-VEXCODE/)    
+[AMOGO VEXcode](https://github.com/Unionjackjz1/HW-AMOGO-VEXCODE/)  
+
+Advanced Code  
 [DOGO PROS](https://github.com/Unionjackjz1/HW-DOGO-PROS/)  
 [AMOGO PROS](https://github.com/Unionjackjz1/HW-AMOGO-PROS/) 
-
-[DOGO VEXcode](https://github.com/Unionjackjz1/HW-DOGO-VEXCODE/)    
-[AMOGO VEXcode](https://github.com/Unionjackjz1/HW-AMOGO-VEXCODE/)   
 
 ## Contributors
 Thank you to the following for helping make this code:
