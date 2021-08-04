@@ -1,4 +1,4 @@
-# Harvard-Westlake's DOGO - VEXCODE
+# Harvard-Westlake's DOGO - VEXcode
   
 DOGO (double mobile goal) is a mobile goal focused robot that can place goals on platforms without climbing, steal goals from opponent platforms and robots, and steal opponents alliance goals. 
 
@@ -22,8 +22,8 @@ VEX Forum
 [DOGO PROS](https://github.com/Unionjackjz1/HW-DOGO-PROS/)  
 [AMOGO PROS](https://github.com/Unionjackjz1/HW-AMOGO-PROS/) 
 
-[DOGO VEXCODE](https://github.com/Unionjackjz1/HW-DOGO-VEXCODE/)    
-[AMOGO VEXCODE](https://github.com/Unionjackjz1/HW-AMOGO-VEXCODE/)  
+[DOGO VEXcode](https://github.com/Unionjackjz1/HW-DOGO-VEXCODE/)    
+[AMOGO VEXcode](https://github.com/Unionjackjz1/HW-AMOGO-VEXCODE/)   
 
 ## Contributors
 Thank you to the following for helping make this code:
