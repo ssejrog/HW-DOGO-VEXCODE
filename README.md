@@ -26,6 +26,7 @@ VEX Forum
 [AMOGO VEXCODE](https://github.com/Unionjackjz1/HW-AMOGO-VEXCODE/)  
 
 ## Contributors
-- Avi Lastname
+Thank you to the following for helping make this code:
+- Avi Dube
 - Ben Lastname
 - Jess Zarchi
