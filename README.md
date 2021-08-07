@@ -13,9 +13,10 @@ DOGO (double mobile goal) is a mobile goal focused robot that can place goals on
 - Tank Drive
 
 ## Features
+ - Simple time-based autonomous routine (drives forward to start driver next to the neutral goal).
  - Lift functions for opcontrol, with a position ladder.
- - Mogo functions for opcontrol and autonomous.
  - Mogo functions for opcontrol.
+ - Tilter functions for opcontrol.
  - Voltage control for the drive.
  
 ## External Links
