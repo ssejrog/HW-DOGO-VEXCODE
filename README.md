@@ -1,5 +1,8 @@
 # Harvard-Westlake's DOGO - VEXcode
   
+This was made on VEXos 1.0.13
+---
+  
 DOGO (double mobile goal) is a mobile goal focused robot that can place goals on platforms without climbing, steal goals from opponent platforms and robots, hold two mobile goals at once, and steal opponents alliance goals. 
 
 ## Controls
