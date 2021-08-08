@@ -22,7 +22,7 @@ DOGO (double mobile goal) is a mobile goal focused robot that can place goals on
 ## External Links
 
 Reveal  
-VEX Forum  
+VEX Forum with CAD  
 
 Basic Code  
 [DOGO VEXcode](https://github.com/Unionjackjz1/HW-DOGO-VEXCODE/)    
